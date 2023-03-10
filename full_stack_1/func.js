@@ -7,11 +7,11 @@ prompt.get(['x', 'b'],
     });
 
 function calculate(x,b) {
-    result = x * b;
-    for (i = 0; i < b-1; i++) {
+    let result = x * b;
+    for (let i = 0; i < b-1; i++) {
         result = result * x * b;
     }
-    if (b == 0) {
+    if (b === 0) {
         result = 1
     }
     return result;
