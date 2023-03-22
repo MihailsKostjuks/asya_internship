@@ -21,19 +21,3 @@ class Game:
     map_tiles: List[List[MapTile]] = field(default_factory=list)
     map_items: List[MapItem] = field(default_factory=list)
     actors: List[Actor] = field(default_factory=list)
-
-
-
-
-# if __name__ == "__main__":
-#     game_dummy = Game()
-    # print(game_dummy.to_dict())
-    # print(game_dummy.to_json(indent=4))
-    # json_for_file = game_dummy.to_json(indent=4)
-    # print(json_for_file, game_dummy.turn)
-    # game_dummy.turn = 2
-    # game_dummy = Game.from_json(json_for_file)
-    # print(game_dummy)
-    #
-    # vec = Vector2D()
-    # print(vec.to_json())
