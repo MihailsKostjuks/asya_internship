@@ -39,7 +39,7 @@ class WindowMain:
         #     ControllerActorWarrior(),
         #     ControllerActorRider()
         # ]
-        self.controller_game.actor_controllers = [ControllerActorWarrior()]
+        self.controller_game.actor_controllers = [ControllerActorWarrior(), ControllerActorRider()]
         self.game.actors = list(self.controller_game.actor_controllers)
         print(self.game.actors)
 
@@ -84,6 +84,7 @@ class WindowMain:
         self.screen.blit(self.surface_warrior, dest=(
             50 + self.controller_game.actor_controllers[0].actor.position.x + self.game.window_location.x,
             50 + self.controller_game.actor_controllers[0].actor.position.y + self.game.window_location.y)
+                         # parvietojas nevis uz 52 bet uz 52 + 104. Tas nozime ka nevaru stradat ar atsevisko indeksu...
                          )
 
     def user_event(self, delta_sec):
