@@ -36,26 +36,10 @@ class MapTile:
         self.actor_on_tile: List[Actor] = []
 
 
-class Game:
-    def __init__(self):
-        self.map_size: int = 0
-        self.turn: int = 0
-        self.__mapTiles: List[MapTile] = []
-
-    def get_map_tiles(self) -> List[MapTile]:
-        return self.__mapTiles
-
-    def new_game(self):
-        pass
-
-    def update_step(self, tribe: EnumTribe, actor: Actor()):
-        pass
-
-
 class Vector2D:
     def __init__(self):
-        self.x: float
-        self.y: float
+        self.x: float = 0
+        self.y: float = 0
 
     def __add__(self):
         pass
@@ -81,8 +65,8 @@ class Water(MapTile):
 
 class Item:
     def __init__(self):  # SETTING ITEM ATTRIBUTES
-        self.is_consumable: bool
-        self.coins_collect: bool
+        self.is_consumable: bool = False
+        self.coins_collect: bool = False
 
 
 class Fruit(Item):
@@ -101,7 +85,7 @@ class Forest(Item):
 class Building(Item):  # Class Building inherits class Item
     def __init__(self):
         super().__init__()
-        self.level: int  # additionally overrides one  attribute
+        self.level: int = 0 # additionally overrides one  attribute
 
 
 class Sawmill(Building):
@@ -124,21 +108,21 @@ class City(Village):
 
 class IActor(metaclass=ABCMeta):  # interface implemented as abstract class
     @abstractmethod  # with abstract methods
-    def move(self, position: Vector2D()):
+    def move(self, position: Vector2D):
         pass
 
 
 class Actor(IActor):
     def __init__(self):
-        self.tribe = EnumTribe.NotSet
-        self.coins_cost: int
-        self.move_steps: int
-        self.power_attack: int
-        self.power_defense: int
-        self.experience: int
-        self.level: int
+        self.tribe: EnumTribe = EnumTribe.NotSet
+        self.coins_cost: int = 0
+        self.move_steps: int = 0
+        self.power_attack: int = 0
+        self.power_defense: int = 0
+        self.experience: int = 0
+        self.level: int = 0
 
-    def move(self, position: Vector2D()):
+    def move(self, position: Vector2D):
         pass
 
 
@@ -155,4 +139,20 @@ class Horseman(Actor):
 class Knight(Horseman):
     def __init__(self):
         super().__init__()
+
+
+class Game:
+    def __init__(self):
+        self.map_size: int = 0
+        self.turn: int = 0
+        self.__mapTiles: List[MapTile] = []
+
+    def get_map_tiles(self) -> List[MapTile]:
+        return self.__mapTiles
+
+    def new_game(self):
+        pass
+
+    def update_step(self, tribe: EnumTribe, actor: Actor):
+        pass
 
