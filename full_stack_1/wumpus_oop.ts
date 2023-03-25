@@ -1,15 +1,15 @@
 let prompt = require('prompt-sync') ();
 
 class Game {
-    private actors: Actor[]
-    private items: Item[]
-    private mapSize: Position
-    private field: string[][]
+    private actors: Actor[];
+    private items: Item[];
+    private mapSize: Position;
+    private field: string[][];
 
 
     constructor() {
         this.actors = [];
-        this.actors.push(new Agent())
+        this.actors.push(new Agent());
         this.items = [];
         this.actors[0].position = {
             x: 0,
