@@ -16,5 +16,4 @@ export interface ApiResponse {
     petalWidthMax: number,
 
     isSuccess: boolean
-   // payload?: number
 }
