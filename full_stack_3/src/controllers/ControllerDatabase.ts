@@ -7,6 +7,7 @@ import {v4 as uuidv4} from 'uuid';
 import {OrmUser} from "../models/orm/OrmUser";
 import {OrmSession} from "../models/orm/OrmSession";
 import {OrmHabit} from "../models/orm/OrmHabit";
+import {DbHabit} from "../models/db/DbHabit";
 
 export class ControllerDatabase {
     //singleton
@@ -80,56 +81,45 @@ export class ControllerDatabase {
 
     }
 
-    public async get_habits(
-        session: OrmSession
-    ): Promise<string[]> {
-        // let habit: OrmHabit = null;
-        let habits: OrmHabit[];
-        let labels: string[] = []
+    public async get_habitsOrm(
+        session_token: string
+    ): Promise<OrmHabit[]> {
+        let habits: OrmHabit[] = null;
+        let session: OrmSession;
 
-        if (session.user_id) {
-            let habits = await this.dataSource.manager.find(OrmHabit, {
-                where: {
-                    user_id: session.user_id
-                }
-            });
+        session = await this.dataSource.manager.findOne(OrmSession, {  // finds appropriate session
+            where: {token: session_token}
+        });
 
-            habits.forEach(
-                habit => {
-                    labels.push(habit.label);
-                }
-            )
-            console.log(labels); // vajag return nevis log bet tas prieks treninam
-        }
-        else {
-            console.log("unexpected error");
-        }
+        habits = await this.dataSource.manager.find(OrmHabit, { // finds all the habits with the same user_id as the session
+            where: {user_id: session.user_id}
+        })
 
-        return labels;
+        return habits;
     }
 
     //TODO
-    public async login(
+    public async loginSQL(
         email: string,
         pass: string
     ): Promise<DbSession> {
         let session: DbSession = null; // vajag kko return
         let sha1Pass = sha1(pass);
 
-        // named params
-        let rows = await this.dataSource.query(
+        // query user with sent email + password
+        let user_table = await this.dataSource.query(
             "SELECT * FROM users WHERE email = ? AND pass = ? AND is_deleted = 0",
             [email, pass] // params massivs: ko ielikt --> ?
             // ar sha1Pass nestrada, nezinu kapec =(
         )
 
-        if (rows.length > 0) {
-            let user: DbUser = {
-                user_id: rows[0].user_id,
-                email: rows[0].email,
-                pass: rows[0].pass,
-                created: rows[0].created,
-                is_deleted: rows[0].is_deleted
+        if (user_table.length > 0) {  // if user exists
+            let user: DbUser = { // lai iegutu user_id prieks sessijai
+                user_id: user_table[0].user_id,
+                email: user_table[0].email,
+                pass: user_table[0].pass,
+                created: user_table[0].created,
+                is_deleted: user_table[0].is_deleted
             }
 
             let sessionToken: string = uuidv4();
@@ -137,15 +127,21 @@ export class ControllerDatabase {
                 "INSERT INTO sessions (user_id, token, is_valid) VALUES (?, ?, 1)", // query
                 [user.user_id, sessionToken] // params
             )
-            let rowLast = await this.dataSource.query(
-                "SELECT last_insert_rowid() as session_id"
+            // let session_table = await this.dataSource.query(
+            //     "SELECT last_insert_rowid() as session_id from sessions"  // takes last primary key and stores in session_id
+            // );
+
+            let session_table: any[] = await this.dataSource.query(  // array of queries
+                "SELECT * FROM sessions JOIN users u on u.user_id = sessions.user_id WHERE sessions.token = ? AND sessions.is_valid = 1",
+                [sessionToken]
             );
-            session = {
-                session_id: rowLast[0].session_id,
-                token: sessionToken,
-                user_id: user.user_id,
-                is_valid: true,
-                created: new Date(),
+
+            session = {  // something wrong here and 134 line
+                session_id: session_table[0].session_id,
+                token: session_table[0].token,
+                user_id: session_table[0].user_id,
+                is_valid: session_table[0].is_valid,
+                created: new Date(session_table[0].created),
                 user: user
             }
             console.log("successful login");
@@ -154,5 +150,20 @@ export class ControllerDatabase {
             console.log("wrong login/password");
         }
         return session;
+    }
+
+    public async get_habitsSQL(
+        session: DbSession  // as parameter session object instead of session_token as I used for ORM. idk what's better
+    ): Promise<DbHabit[]> {
+        let habits: DbHabit[] = null;
+
+        habits = await this.dataSource.query(
+            "SELECT * FROM habits WHERE user_id = ?",
+            [session.user_id]
+        )
+        console.log(session.user_id);
+        console.log(habits);
+
+        return habits;
     }
 }

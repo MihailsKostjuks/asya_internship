@@ -14,36 +14,67 @@ const main = async () => {
         app.use(mult.array("data"));
 
         await ControllerDatabase.instance.connect(); // connect
-        let session = await ControllerDatabase.instance.loginOrm(
-            "test@gmail.com",
-            "1234567890"
-        )
-        let habit = await ControllerDatabase.instance.get_habits(
-            session
-        )
+        // let session = await ControllerDatabase.instance.loginOrm(
+        //     "test@gmail.com",
+        //     "1234567890"
+        // )
+        // let habit = await ControllerDatabase.instance.get_habits(
+        //     session
+        // )
 
         app.post('/login', async (req, res) => {
-            let response = {
-                session_token: "",
-                success: true
-            };
-            let request = req.body();
-            let session = await ControllerDatabase.instance.login(
+            let request = req.body;
+            let session = await ControllerDatabase.instance.loginOrm(
                 request.email,
                 request.pass
             )
-            // TODO logic via controller
-            res.json(response);
+            if (session !== null) {
+                let session_token: string = session.token; // stradam ar tokenu
+                let responseParam: string = encodeURIComponent(session_token);
+                res.redirect(`/get_habits?response=${responseParam}`);
+            } else {
+                res.send('Invalid login and/or password.'); // converts to json string
+            }
+
+
         });
 
-        app.post('/get_habits', (req, res) => {
+        app.get('/get_habits', async (req, res) => {
+            let sessionTokenSentFromLogin = req.query.response as string;
+            let request: string = decodeURIComponent(sessionTokenSentFromLogin);
+            let habits = await ControllerDatabase.instance.get_habitsOrm(request);
+
+            if (habits === null) {
+                res.send("You have currently no habits posted here. Now it's the best time to start!");
+            } else {
+                res.send(habits);
+            }
+        });
+
+        app.post('/login_sql', async (req, res) => {
             let request = req.body;
-            // seit ieksa bus request.session_token (nevajag user_id, mes pec session_token jau visu zinam)
-            let response = {
-                success: true
-            };
-            // TODO logic via controller
-            res.json(response);
+            let session = await ControllerDatabase.instance.loginSQL(
+                request.email,
+                request.pass
+            )
+            if (session === null) {
+                res.send('Invalid login and/or password.');
+            } else {
+                let responseParam = encodeURIComponent(JSON.stringify(session));
+                res.redirect(`/get_habits_sql?response=${responseParam}`);
+            }
+        });
+
+        app.get('/get_habits_sql', async (req, res) => {
+            let sessionSentFromLogin = req.query.response as string;
+            let request = JSON.parse(decodeURIComponent(sessionSentFromLogin));
+            let habits = await ControllerDatabase.instance.get_habitsSQL(request);
+
+            if (habits === null) {
+                res.send("You have currently no habits posted here. Now it's the best time to start!");
+            } else {
+                res.send(habits);
+            }
         });
 
         // TODO
