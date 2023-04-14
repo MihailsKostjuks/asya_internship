@@ -31,17 +31,13 @@ class WindowMain:
 
 
 
+        self.game_controller = ControllerGame()  # lai izsauktu controllera metodes
+        self.game = self.game_controller.new_game()  # lai nolasitu datus no models
 
+        self.actor_x_temp: int = 0
+        self.actor_y_temp: int = 0
 
-        self.game = ControllerGame.new_game()  # calling new_game instance
-        self.controller_game = ControllerGame()
-        # self.controller_game.actor_controllers = [  # nestrada (abie controlleri manipule to pasu Actor() instanci)
-        #     ControllerActorWarrior(),
-        #     ControllerActorRider()
-        # ]
-        self.controller_game.actor_controllers = [ControllerActorWarrior(), ControllerActorRider()]
-        self.game.actors = list(self.controller_game.actor_controllers)
-        print(self.game.actors)
+        self.mouse_pos = None
 
     def show(self):
         # main game loop
@@ -50,7 +46,7 @@ class WindowMain:
             # get delta seconds
             self.screen.fill((0, 0, 0))
             time_current = time.time()
-            delta_sec = time_current - time_last  # delta_sec == 0.01
+            delta_sec = time_current - time_last  # delta_sec == 0.03
             time_last = time_current
 
             # update
@@ -62,9 +58,19 @@ class WindowMain:
     def update(self, delta_sec):
         self.user_event(delta_sec)
         self.draw()
+        if self.mouse_pos:
+            if self.mouse_pos[0] - 35 - self.game.window_location.x == self.game.actors[0].position.x:
+                if self.mouse_pos[1] - 10 - self.game.window_location.y == self.game.actors[0].position.y:
+                    self.mouse_pos = None
+        if self.mouse_pos:  # if was ever clicked at all (initially equals None, and if movement completed also becomes None)
+            mouse_pos_updated_x: float = self.mouse_pos[0] - self.game.window_location.x
+            mouse_pos_updated_y: float = self.mouse_pos[1] - self.game.window_location.y
+            mouse_pos_updated = [mouse_pos_updated_x, mouse_pos_updated_y]
+            self.game_controller.update(mouse_pos_updated, delta_sec)
         self.draw_actors()
 
     def draw(self):
+        self.not_walking_maptiles = []
         for j in range(self.game.map_size.y):
             for i in range(self.game.map_size.x):
                 if self.game.map_tiles[j][i].tile_type == EnumMapTileType.Ground:
@@ -75,17 +81,35 @@ class WindowMain:
                 elif self.game.map_tiles[j][i].tile_type == EnumMapTileType.Water:
                     if j % 2:
                         self.screen.blit(self.surface_water, dest=(i * 52 + self.game.window_location.x, j * 15 + self.game.window_location.y))
-                        self.not_walking_maptiles.append([i * 52, j * 15])
+                        self.not_walking_maptiles.append({'x': i * 52 + self.game.window_location.x, 'y': j * 15 + self.game.window_location.y})
                     else:
                         self.screen.blit(self.surface_water, dest=(26 + (i * 52) + self.game.window_location.x, j * 15 + self.game.window_location.y))
-                        self.not_walking_maptiles.append([26 + (i * 52), j * 15])
+                        self.not_walking_maptiles.append({'x': 26 + (i * 52) + self.game.window_location.x, 'y': j * 15 + self.game.window_location.y})
 
     def draw_actors(self):
+        warrior_x: int = 35 + self.game.actors[0].position.x + self.game.window_location.x
+        warrior_y: int = 10 + self.game.actors[0].position.y + self.game.window_location.y
+
+        rider_x: int = 35 + self.game.actors[1].position.x + self.game.window_location.x
+        rider_y: int = 10 + self.game.actors[1].position.y + self.game.window_location.y
+
+        # for not_walking_maptile in self.not_walking_maptiles:
+        #     if not_walking_maptile['x'] == actor_x - 35 + 26:
+        #         if not_walking_maptile['y'] == actor_y - 10 + 30:
+        #             self.game.actors[0].position.x = self.actor_x_temp
+        #             self.game.actors[0].position.y = self.actor_y_temp
+
+        # self.screen.blit(self.surface_rider, dest=(
+        #     rider_x,
+        #     rider_y)
+        # )
+
         self.screen.blit(self.surface_warrior, dest=(
-            50 + self.controller_game.actor_controllers[0].actor.position.x + self.game.window_location.x,
-            50 + self.controller_game.actor_controllers[0].actor.position.y + self.game.window_location.y)
-                         # parvietojas nevis uz 52 bet uz 52 + 104. Tas nozime ka nevaru stradat ar atsevisko indeksu...
+            warrior_x,
+            warrior_y)
                          )
+        # self.actor_x_temp = self.game.actors[0].position.x
+        # self.actor_y_temp = self.game.actors[0].position.y
 
     def user_event(self, delta_sec):
         for event in pygame.event.get():
@@ -94,8 +118,9 @@ class WindowMain:
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    self.controller_game.update(self.game)
-
+                    self.game_controller.execute_turn()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                self.mouse_pos = pygame.mouse.get_pos()
         # MAP MOVEMENT
         keys_pressed = key.get_pressed()
 
