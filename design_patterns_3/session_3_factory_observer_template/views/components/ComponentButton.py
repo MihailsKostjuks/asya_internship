@@ -1,5 +1,4 @@
 from typing import List
-
 import pygame
 pygame.init()
 
@@ -30,9 +29,7 @@ class ComponentButton:
             self.button_rect.width/2 + self.button_rect.x,
             self.button_rect.height/2 + self.button_rect.y
         )
-
-
-
+        self.is_hover: bool = False
         self.listener_click: List[callable] = []  # list of functions
 
     def draw(self, surface: pygame.Surface):
@@ -40,19 +37,29 @@ class ComponentButton:
             source=self.button_up,
             dest=(self.button_rect.x, self.button_rect.y)
         )
-        if self.button_up.get_rect().collidepoint(pygame.mouse.get_pos()):
+        if self.is_hover:
             surface.blit(
                 source=self.text,
                 dest=self.text_rect
             )
 
     # triggers any time the user clicks on the map (is called in WindowMain)
-    def trigger_mouse(self, mouse_position, mouse_button_state):
-        if any(mouse_button_state):  # checks if mouse position coincides with button position
-            if self.button_rect.x < mouse_position[0] < self.button_rect.x + self.button_rect.width:
-                if self.button_rect.y < mouse_position[1] < self.button_rect.y + self.button_rect.height:
-                    for listener in self.listener_click:
-                        listener()
+    def trigger_mouse(self):
+        mouse_pos = pygame.mouse.get_pos()
+        # QUESTIONS! if I define a variable outside __init__, do I use self. or no?
+        mouse_buttons = pygame.mouse.get_pressed()
+        if mouse_buttons[0]:  # checks if mouse position coincides with button position
+            if self.button_rect.x < mouse_pos[0] < self.button_rect.x + self.button_rect.width:
+                if self.button_rect.y < mouse_pos[1] < self.button_rect.y + self.button_rect.height:
+                    self.call_listener()
+        if self.button_up.get_rect().collidepoint(mouse_pos):
+            self.is_hover = True
+        else:
+            self.is_hover = False
+
+    def call_listener(self):
+        for listener in self.listener_click:
+            listener()
 
     def add_listener_click(self, event_listener):
         if event_listener not in self.listener_click:

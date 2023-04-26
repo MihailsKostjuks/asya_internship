@@ -96,12 +96,7 @@ class WindowMain:
 
     def update(self, delta_sec):
 
-        self.mouse_pos = pygame.mouse.get_pos()
-        self.mouse_buttons = pygame.mouse.get_pressed()
-        self.ui_button_new_game.trigger_mouse(
-            mouse_position=self.mouse_pos,
-            mouse_button_state=self.mouse_buttons
-        )
+        self.ui_button_new_game.trigger_mouse()
 
         buildings_unused = list(self.surfaces_by_buildings.keys())  # list of MapBuilding id's, List[MapBuilding]
         # from start - empty
@@ -204,10 +199,7 @@ class WindowMain:
             self.ui_button_create_warrior.add_listener_click(
                 self.on_click_create_warrior
             )
-            self.ui_button_create_warrior.trigger_mouse(
-                mouse_position=self.mouse_pos,
-                mouse_button_state=self.mouse_buttons
-            )
+            self.ui_button_create_warrior.trigger_mouse()
             # seit ari padot blit pogu pie katras building ar atbilstosiem koordinatiem
             try:
                 for tribe in self.surfaces_by_actors.keys():
