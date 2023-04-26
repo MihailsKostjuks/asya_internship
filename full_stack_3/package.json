@@ -6,7 +6,8 @@
   "scripts": {
     "debug": "ts-node ./src/main.ts",
     "build": "tsc",
-    "run": "node ./dest/main.js"
+    "run": "node ./dest/main.js",
+    "watch": "nodemon src/main.ts"
   },
   "keywords": [],
   "author": "",

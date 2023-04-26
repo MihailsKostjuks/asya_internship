@@ -104,7 +104,7 @@ export class ControllerDatabase {
         pass: string
     ): Promise<DbSession> {
         let session: DbSession = null; // vajag kko return
-        let sha1Pass = sha1(pass);
+        // let sha1Pass = sha1(pass);
 
         // query user with sent email + password
         let user_table = await this.dataSource.query(
@@ -112,14 +112,17 @@ export class ControllerDatabase {
             [email, pass] // params massivs: ko ielikt --> ?
             // ar sha1Pass nestrada, nezinu kapec =(
         )
+        console.log(user_table);
+
 
         if (user_table.length > 0) {  // if user exists
+            let userTable = user_table[0];
             let user: DbUser = { // lai iegutu user_id prieks sessijai
-                user_id: user_table[0].user_id,
-                email: user_table[0].email,
-                pass: user_table[0].pass,
-                created: user_table[0].created,
-                is_deleted: user_table[0].is_deleted
+                user_id: userTable.user_id,
+                email: userTable.email,
+                pass: userTable.pass,
+                created: userTable.created,
+                is_deleted: userTable.is_deleted
             }
 
             let sessionToken: string = uuidv4();
@@ -152,18 +155,28 @@ export class ControllerDatabase {
         return session;
     }
 
-    public async get_habitsSQL(
-        session: DbSession  // as parameter session object instead of session_token as I used for ORM. idk what's better
+    public async get_habitsSQL(  // return habits using given sessionToken
+        sessionToken: string
+        // session: DbSession  // as parameter session object instead of session_token as I used for ORM. idk what's better
     ): Promise<DbHabit[]> {
         let habits: DbHabit[] = null;
+        let sessionTable: DbSession[];
+        let session: DbSession;
 
-        habits = await this.dataSource.query(
+        sessionTable = await this.dataSource.query(  // select a session
+            "SELECT * FROM sessions WHERE token = ?",
+            [sessionToken]
+        );
+        session = sessionTable[0];
+
+        habits = await this.dataSource.query(  // select habits using that session
             "SELECT * FROM habits WHERE user_id = ?",
             [session.user_id]
         )
         console.log(session.user_id);
         console.log(habits);
 
-        return habits;
+        return habits;  // code is not optimal (many repeated lines) but I tried to send ./login_sql response
+        // to ./get_habits_sql manually. (I found no ways connect 2 app.post so they communicate automatically
     }
 }
