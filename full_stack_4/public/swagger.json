@@ -1,0 +1,446 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"UserLoginResponse": {
+				"properties": {
+					"sessionToken": {
+						"type": "string"
+					},
+					"is_success": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"sessionToken",
+					"is_success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UserLoginRequest": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"device": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UserRegisterResponse": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"is_success": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"message",
+					"is_success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UserRegisterRequest": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"reEnterPassword": {
+						"type": "string"
+					},
+					"device": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password",
+					"reEnterPassword"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DbUser": {
+				"properties": {
+					"user_id": {
+						"type": "number",
+						"format": "double"
+					},
+					"email": {
+						"type": "string"
+					},
+					"pass": {
+						"type": "string"
+					},
+					"is_deleted": {
+						"type": "boolean"
+					},
+					"created": {
+						"type": "string",
+						"format": "date-time"
+					}
+				},
+				"required": [
+					"user_id",
+					"email",
+					"pass",
+					"is_deleted",
+					"created"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DbHabit": {
+				"properties": {
+					"habit_id": {
+						"type": "number",
+						"format": "double"
+					},
+					"user_id": {
+						"type": "number",
+						"format": "double"
+					},
+					"label": {
+						"type": "string"
+					},
+					"is_deleted": {
+						"type": "boolean"
+					},
+					"created": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"user": {
+						"$ref": "#/components/schemas/DbUser"
+					}
+				},
+				"required": [
+					"habit_id",
+					"user_id",
+					"label",
+					"is_deleted",
+					"created"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TodosNotification": {
+				"properties": {
+					"message": {
+						"type": "string"
+					},
+					"is_success": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"message",
+					"is_success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TodosListRequest": {
+				"properties": {
+					"sessionToken": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"sessionToken"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TodosAddDelRequest": {
+				"properties": {
+					"sessionToken": {
+						"type": "string"
+					},
+					"habitLabel": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"sessionToken",
+					"habitLabel"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TodosUpdateRequest": {
+				"properties": {
+					"sessionToken": {
+						"type": "string"
+					},
+					"habitLabel": {
+						"type": "string"
+					},
+					"newHabitLabel": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"sessionToken",
+					"habitLabel",
+					"newHabitLabel"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "session_4_backend_leftovers",
+		"version": "1.0.0",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/user/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserLoginResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "login endpoint I hope you will see it",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "UserLoginRequest",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UserLoginRequest",
+								"description": "UserLoginRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/user/register": {
+			"post": {
+				"operationId": "Register",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserRegisterResponse"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UserRegisterRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/user/confirmation": {
+			"get": {
+				"operationId": "Confirmation",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserRegisterResponse"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "uuid",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/todos/list": {
+			"post": {
+				"operationId": "List",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"items": {
+												"$ref": "#/components/schemas/DbHabit"
+											},
+											"type": "array"
+										},
+										{
+											"$ref": "#/components/schemas/TodosNotification"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"description": "todos things",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TodosListRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/todos/add": {
+			"post": {
+				"operationId": "Add",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TodosNotification"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TodosAddDelRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/todos/delete": {
+			"post": {
+				"operationId": "Delete",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TodosNotification"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TodosAddDelRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/todos/update": {
+			"post": {
+				"operationId": "Update",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TodosNotification"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/TodosUpdateRequest"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
