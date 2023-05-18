@@ -236,7 +236,7 @@
 						}
 					}
 				},
-				"description": "login endpoint I hope you will see it",
+				"description": "Here you can login by entering your email & password. Device type is optional",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -268,14 +268,17 @@
 						}
 					}
 				},
+				"description": "Here you can register by entering your email & password twice. Device type is optional",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
+					"description": "UserLoginRequest",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/UserRegisterRequest"
+								"$ref": "#/components/schemas/UserRegisterRequest",
+								"description": "UserLoginRequest"
 							}
 						}
 					}
@@ -335,7 +338,7 @@
 						}
 					}
 				},
-				"description": "todos things",
+				"description": "Habits list",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -365,6 +368,7 @@
 						}
 					}
 				},
+				"description": "Add habit",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -394,6 +398,7 @@
 						}
 					}
 				},
+				"description": "Delete habit",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -423,6 +428,7 @@
 						}
 					}
 				},
+				"description": "Update habit",
 				"security": [],
 				"parameters": [],
 				"requestBody": {

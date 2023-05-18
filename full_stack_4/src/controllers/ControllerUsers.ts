@@ -16,11 +16,13 @@ export class ControllerUsers {
      */
     @Post("login")
     public async login(@Body() request: UserLoginRequest): Promise<UserLoginResponse> {
+        let contDB: ControllerDatabase = new ControllerDatabase();
+        await contDB.connect();
         let response: UserLoginResponse = {
             sessionToken: "",
             is_success: false
         }
-        let sessionToken: string = await ControllerDatabase.instance.login(
+        let sessionToken: string = await contDB.login(
             request.email,
             request.password
         );
@@ -30,6 +32,7 @@ export class ControllerUsers {
                 is_success: true
             }
         }
+        await contDB.close();
         return response;
     }
 
@@ -41,12 +44,15 @@ export class ControllerUsers {
     public async register(@Body() request: UserRegisterRequest): Promise<UserRegisterResponse> {
         // Initially I did not want to stay with "The passwords you entered do not match."
         // message field as default (because its too specific, but in this case is okay)
+        let contDB: ControllerDatabase = new ControllerDatabase();
+        await contDB.connect();
+
         let response: UserRegisterResponse = { // for further updates (now not needed)
             message: 'unknown error',
             is_success: false
         }
         if (request.password === request.reEnterPassword) {
-            response = await ControllerDatabase.instance.register(
+            response = await contDB.register(
                 request.email,
                 request.password
             )
@@ -56,6 +62,7 @@ export class ControllerUsers {
                 is_success: false
             }
         }
+        await contDB.close();
         return response;
     }
 

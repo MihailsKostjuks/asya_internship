@@ -35,9 +35,6 @@ app.use(
     }),
 );
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log('Server is live. Go to http://localhost:8000/docs/');
-    ControllerDatabase.instance.connect().then(
-        r => console.log('Database is connected')
-    );
-})
+});

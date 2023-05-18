@@ -16,8 +16,11 @@ export class ControllerTodos {
      */
     @Post("list")
     public async list(@Body() request: TodosListRequest): Promise<DbHabit[] | TodosNotification> {
+        let contDB: ControllerDatabase = new ControllerDatabase();
+        await contDB.connect();
         let response: DbHabit[] | TodosNotification;
-        response = await ControllerDatabase.instance.listHabits(request);
+        response = await contDB.listHabits(request);
+        await contDB.close();
         return response;
 
     }
@@ -28,8 +31,11 @@ export class ControllerTodos {
      */
     @Post("add")
     public async add(@Body() request: TodosAddDelRequest): Promise<TodosNotification> {
+        let contDB: ControllerDatabase = new ControllerDatabase();
+        await contDB.connect();
         let response: TodosNotification;
-        response = await ControllerDatabase.instance.addHabit(request);
+        response = await contDB.addHabit(request);
+        await contDB.close();
         return response;
     }
 
@@ -39,8 +45,11 @@ export class ControllerTodos {
      */
     @Post("delete")
     public async delete(@Body() request: TodosAddDelRequest): Promise<TodosNotification> {
+        let contDB: ControllerDatabase = new ControllerDatabase();
+        await contDB.connect();
         let response: TodosNotification;
-        response = await ControllerDatabase.instance.deleteHabit(request);
+        response = await contDB.deleteHabit(request);
+        await contDB.close();
         return response;
     }
 
@@ -50,8 +59,11 @@ export class ControllerTodos {
      */
     @Post("update")
     public async update(@Body() request: TodosUpdateRequest): Promise<TodosNotification> {
+        let contDB: ControllerDatabase = new ControllerDatabase();
+        await contDB.connect();
         let response: TodosNotification;
-        response = await ControllerDatabase.instance.updateHabit(request);
+        response = await contDB.updateHabit(request);
+        await contDB.close();
         return response;
     }
 }

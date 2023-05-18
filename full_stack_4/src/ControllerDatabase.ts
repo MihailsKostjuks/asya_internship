@@ -16,30 +16,23 @@ import nodemailer from "nodemailer";
 
 
 export class ControllerDatabase {
-    //singleton
-    private static _instance: ControllerDatabase;
-    private constructor() {
+
+    private dataSource: DataSource;
+    constructor() {
         // init litesql datasource
         this.dataSource = new DataSource({
             type: "sqlite",
             database: "./database.sqlite", // sqlite glaba visu viena failā
             logging: false,
             synchronize: false
-        })
+        });
     }
-
-    public static get instance(): ControllerDatabase {
-        if (!ControllerDatabase._instance) {
-            ControllerDatabase._instance = new ControllerDatabase();
-        }
-        return ControllerDatabase._instance;
-    }
-
-    //datasource
-    private dataSource: DataSource;
 
     public async connect(): Promise<void> {
         await this.dataSource.initialize();
+    }
+    public async close(): Promise<void> {
+        await this.dataSource.destroy();
     }
 
     public async login(
@@ -102,7 +95,7 @@ export class ControllerDatabase {
                 message: 'Thanks for registration!',
                 is_success: true
             }
-            await ControllerDatabase.instance.verifyEmail(
+            await this.verifyEmail(
                 email
             );
         }
@@ -113,7 +106,7 @@ export class ControllerDatabase {
         email: string
     ): Promise<void> {
         let uuid: string = uuidv4();
-        let url: string = `localhost:8000/docs/user/confirmation/${uuid}`;
+        let url: string = `http://localhost:8000/docs/user/confirmation/${uuid}`;
         let htmlTemplate: string = fs.readFileSync(
             'src/verificationTemplate.html',
             {encoding: 'utf-8'}
@@ -140,24 +133,23 @@ export class ControllerDatabase {
     }
 
     public async tokenIsValid(
-        request: TodosListRequest
+        sessionToken: string
     ): Promise<TodosVerification> {
-        let sessionToken: TodosListRequest['sessionToken'] = request.sessionToken; // ???HERE NEEDED TYPING???
-        let sessionTable: DbSession[];
-        let session: DbSession;
+        let sessionRows: DbSession[] = [];
         let response: TodosVerification = {
             is_success: false,
             user_id: null
         }
-        sessionTable = await this.dataSource.query(
-            "SELECT * FROM sessions WHERE token = ?",
+        sessionRows = await this.dataSource.query(
+            "SELECT * FROM sessions WHERE token = ? LIMIT 1",
             [sessionToken]
         );
-        if (sessionTable[0]) {
-            session = sessionTable[0];
+
+        if (sessionRows.length > 0) {
+            let sessionRow: DbSession = sessionRows[0];
             response = {
                 is_success: true,
-                user_id: session.user_id
+                user_id: sessionRow.user_id
             }
         }
         return response;
@@ -172,8 +164,8 @@ export class ControllerDatabase {
             is_success: false
         }
 
-        let tokenCheck: TodosVerification = await ControllerDatabase.instance.tokenIsValid(
-            request
+        let tokenCheck: TodosVerification = await this.tokenIsValid(
+            request.sessionToken
         )
         if (tokenCheck.is_success === false && !tokenCheck.user_id) {
             return responseMessage;
@@ -194,8 +186,8 @@ export class ControllerDatabase {
             message: 'invalid session token',
             is_success: false
         };
-        let tokenCheck: TodosVerification = await ControllerDatabase.instance.tokenIsValid(
-            request
+        let tokenCheck: TodosVerification = await this.tokenIsValid(
+            request.sessionToken
         );
         if (tokenCheck.is_success === false || !tokenCheck.user_id) {
             return responseMessage;
@@ -218,14 +210,14 @@ export class ControllerDatabase {
             message: 'invalid session token',
             is_success: false
         };
-        let tokenCheck: TodosVerification = await ControllerDatabase.instance.tokenIsValid(
-            request
+        let tokenCheck: TodosVerification = await this.tokenIsValid(
+            request.sessionToken
         );
         if (tokenCheck.is_success === false && !tokenCheck.user_id) {
             return responseMessage;
         }
         let habitToBeDeleted: DbHabit[] = await this.dataSource.query(
-            "SELECT * FROM habits WHERE label = ? AND user_id = ?",
+            "SELECT * FROM habits WHERE label = ? AND user_id = ? LIMIT 1",
             [request.habitLabel, tokenCheck.user_id]
         );
         if (habitToBeDeleted[0]) {
@@ -254,26 +246,22 @@ export class ControllerDatabase {
             message: 'invalid session token',
             is_success: false
         };
-        let tokenCheck: TodosVerification = await ControllerDatabase.instance.tokenIsValid(
-            request
+        let tokenCheck: TodosVerification = await this.tokenIsValid(
+            request.sessionToken
         );
         if (tokenCheck.is_success === false && !tokenCheck.user_id) {
             return responseMessage;
         }
-        let habitToBeUpdated: DbHabit[] = await this.dataSource.query(
-            "SELECT * FROM habits WHERE label = ? AND user_id = ?",
-            [request.habitLabel, tokenCheck.user_id]
-        );
-        if (habitToBeUpdated.length === 0) {
+        let result = await this.dataSource.query(
+            "UPDATE habits SET label = ? WHERE label = ?",
+            [request.newHabitLabel, request.habitLabel],
+        )
+        if (result.affected == 0) {
             responseMessage = {
                 message: 'You have no such a habit',
                 is_success: false
             }
         } else {
-            await this.dataSource.query(
-                "UPDATE habits SET label = ? WHERE label = ?",
-                [request.newHabitLabel, request.habitLabel]
-            )
             responseMessage = {
                 message: `${request.habitLabel} was updated to ${request.newHabitLabel}`,
                 is_success: true
