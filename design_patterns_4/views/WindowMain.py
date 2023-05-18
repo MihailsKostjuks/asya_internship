@@ -138,9 +138,8 @@ class WindowMain:
                 is_transparent=True,
                 linked_item=building
             )
-            ui_button_do_turn: ComponentButton
             if building.tribe == EnumTribe.Imperius:
-                ui_button_do_turn = ComponentButton(
+                ui_button_do_turn: ComponentButton = ComponentButton(
                     rect=Rect(400, 5, 95, 35),
                     text='Imperius',
                     linked_enum=EnumTribe.Imperius
@@ -204,7 +203,7 @@ class WindowMain:
         )
         controller = None
         # 1.point (punkts)
-        controller = FactoryControllerActor(actor).get_controller_actor(actor_type)  # ??????(type_error) 1. factory cont
+        controller = FactoryControllerActor().create_controller(actor)  # ?(type_error) 1. factory cont
         self.controllers_actors.append(controller)  # 2. append cont into list
         self.collection_cont_actors = CollectionActorControllers(self.controllers_actors)  # update iterator
 
@@ -215,18 +214,20 @@ class WindowMain:
         self.actor_surfaces.append(actor_surface)
 
     ############### TURN IMPLEMENTATION ###############
-    def on_click_do_turn(self, button: ComponentButton):  # observer pattern (one of the listeners)
+    def on_click_do_turn(self, button: ComponentButton):
+        # observer pattern (one of the listeners)
         button = button
         # TODO make turn for actors
-        for each in self.collection_cont_actors:
-            actor_tribe = each[0]
-            controller_actors: List = each[1]
-            if actor_tribe == button.linked_enum:  # connecting tribe & button (by the tribe)
+        for actor_tribe, controller_actors in self.collection_cont_actors:
+            if actor_tribe == button.linked_enum:
+                # connecting tribe & button (by the tribe)
                 if actor_tribe == EnumTribe.Imperius:
                     self.turn_counter_imperius += 1
                 elif actor_tribe == EnumTribe.Hoodrick:
                     self.turn_counter_hoodrick += 1
-                for controller_actor in controller_actors:  # iterating through all controllers that have button's tribe
+                for controller_actor in controller_actors:
+                    # iterating through all controllers
+                    # that have button's tribe
                     controller_actor.do_turn()
 
     # main loop
@@ -399,8 +400,24 @@ class WindowMain:
 """
 1. done
 2. why return building?
-3. EventComponentButton not implemented, everything was done via ComponentButton & new listener func in WM
-4. was pretty hard. Do I need to implement many methods in CongrollerGame and call them inside WindowMain? (see example)
+3. EventComponentButton not implemented,
+everything was done via ComponentButton & new listener func in WM
+4. was pretty hard. Do I need to implement many methods 
+in CongrollerGame and call them inside WindowMain? (see example)
 5. done
 """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

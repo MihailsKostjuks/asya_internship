@@ -13,13 +13,11 @@ from models.enums.EnumActor import EnumActor
 
 class FactoryControllerActor:
 
-    def __init__(self, actor: Actor):
-        self.actor = actor
-        self.actors_by_types: Dict[EnumActor, IControllerActor] = {
-            EnumActor.Warrior: ControllerActorWarrior(self.actor),
-            EnumActor.Knight: ControllerActorKnight(self.actor),
-            EnumActor.Rider: ControllerActorRider(self.actor)
-        }
-
-    def get_controller_actor(self, enum_actor: EnumActor) -> IControllerActor:
-        return self.actors_by_types[enum_actor]
+    @staticmethod
+    def create_controller(actor: Actor) -> IControllerActor:
+        if actor.actor_type == EnumActor.Warrior:
+            return ControllerActorWarrior(actor)
+        elif actor.actor_type == EnumActor.Knight:
+            return ControllerActorKnight(actor)
+        elif actor.actor_type == EnumActor.Rider:
+            return ControllerActorRider(actor)

@@ -87,7 +87,5 @@ class ControllerGame:
         actor.actor_type = actor_type
 
         self.game.actors.append(actor)
-
-
         return actor
 
