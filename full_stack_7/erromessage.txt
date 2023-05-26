@@ -1,0 +1,8 @@
+ERROR [Reanimated] The native part of Reanimated doesn't seem to be initialized.
+This could be caused by - not rebuilding the app after installing or upgrading Reanimated - trying to run Reanimated on an unsupported platform -
+running in a brownfield app without manually initializing the native library
+
+ERROR Error: Failed to create a worklet. Did you forget to add Reanimated Babel plugin in babel.config.js?
+See installation docs at https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation#babel-plugin., js engine: hermes
+
+ERROR TypeError: Cannot read property 'App' of undefined, js engine: hermes
