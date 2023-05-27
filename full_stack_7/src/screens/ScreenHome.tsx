@@ -31,6 +31,7 @@ export function ScreenHome() {
       <View style={{ flex: 1}}>
         {habits.map((item, i)=> (
           <ListItem.Swipeable
+            key={`habit_${i}`}
             rightContent={
               <Button
                 title="Delete"

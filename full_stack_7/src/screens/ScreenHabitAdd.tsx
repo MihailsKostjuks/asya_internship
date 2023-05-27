@@ -8,13 +8,13 @@ export function ScreenHabitAdd({route}) {
   const navigation = useNavigation();
   const {onSave} = route.params;
 
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState(new Date());
+  const [isDatePickerOpen, setOpen] = useState(false);
+  const [datetimeDatePicker, setDate] = useState(new Date());
 
   const [habitLabel, setHabitLabel] = useState('');
 
   function saveHabit() {
-    onSave(habitLabel, date);
+    onSave(habitLabel, isDatePickerOpen);
   }
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -31,8 +31,8 @@ export function ScreenHabitAdd({route}) {
         <Button title="Choose date" onPress={() => setOpen(true)} />
         <DatePicker
           modal
-          open={open}
-          date={date}
+          open={isDatePickerOpen}
+          date={datetimeDatePicker}
           onConfirm={(date) => {
             setOpen(false);
             setDate(date);
