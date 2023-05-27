@@ -25,7 +25,7 @@ export class ScreenHabits extends React.Component<Props, State>{
             editCompIsHidden: true,
             habitForEdit: {
                 title: ''
-            }
+            } as Habit
         } as State;
     }
     addHabit = () => {
@@ -49,16 +49,17 @@ export class ScreenHabits extends React.Component<Props, State>{
             habits: habits
         })
     }
-    showEditComponent = (habit: Habit) => {
-        this.setState({
-            editCompIsHidden: false,
-            habitForEdit: habit
-        })
-    };
-    hideEditComponent = () => {
-        this.setState({
-            editCompIsHidden: true
-        })
+    toggleEditComponent = (habit?: Habit) => {
+        if (habit) {
+            this.setState({
+                editCompIsHidden: false,
+                habitForEdit: habit
+            })
+        } else {
+            this.setState({
+                editCompIsHidden: true
+            })
+        }
     };
     changeHabit = (habit: Habit, newTitle: string) => {
         let habits = this.state.habits;
@@ -78,7 +79,7 @@ export class ScreenHabits extends React.Component<Props, State>{
                 {this.state.habits.map((habit, index) =>
                     <ComponentHabitListItem
                         onDelete={this.deleteHabit}
-                        showEdit={this.showEditComponent}
+                        showEdit={this.toggleEditComponent}
                         habit={habit}
                         key={index}
                     />
@@ -86,7 +87,7 @@ export class ScreenHabits extends React.Component<Props, State>{
                 {!this.state.editCompIsHidden && <ComponentHabitEditItem
                     habit={this.state.habitForEdit}
                     onChange={this.changeHabit}
-                    onCancel={this.hideEditComponent}
+                    onCancel={this.toggleEditComponent}
                 />}
                 <View style={{flex: 1,}}></View>
                 <TextInput
