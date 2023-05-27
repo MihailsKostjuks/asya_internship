@@ -3,14 +3,20 @@ from typing import List
 import pygame
 from pygame import Surface
 
-from views.components.interfaces.IComponentButton import IComponent
 
 
-class ComponentButton(IComponent):
+class ComponentButton:
 
-    def __init__(self, rect: pygame.Rect, text: str = None, is_transparent: bool = False, linked_item: object = None,
-                 linked_enum: object = None, is_visible: bool = True, is_toggle_button: bool = False):
-        super().__init__(rect, text, is_transparent, linked_item, linked_enum, is_visible, is_toggle_button)
+    def __init__(
+            self,
+            rect: pygame.Rect,
+            text: str = None,
+            is_transparent: bool = False,
+            linked_item: object = None,
+            linked_enum: object = None,
+            is_visible: bool = True,
+            is_toggle_button: bool = False
+    ):
         self.is_visible = is_visible
         self.button_rect = rect
         self.button_text = text
@@ -26,9 +32,7 @@ class ComponentButton(IComponent):
         self.is_button_over = False
         self.is_button_toggled = False
         self.is_toggle_button = is_toggle_button
-        self.font_size = 24  # how to change this property?
-        self.font_family = 'arial'
-        self.font = pygame.font.SysFont(self.font_family, self.font_size)
+        self.font = pygame.font.SysFont('arial', 24)
 
         if not self.is_transparent:
             self.button_up = self.generate_button_surface(

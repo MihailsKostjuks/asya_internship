@@ -1,5 +1,3 @@
-import pickle
-import struct
 import time
 import random
 from typing import Dict, List
@@ -13,12 +11,10 @@ from controllers.ControllerActorWarrior import ControllerActorWarrior
 from controllers.ControllerGame import ControllerGame
 from controllers.commands.CommandActorMove import CommandActorMove
 from controllers.decorators.DecoratorFasterActor import DecoratorFasterActor
-from controllers.decorators.DecoratorComponentButton import DecoratorComponentButton
 from models.Actor import Actor
 from models.Game import Game
 from models.Vector2D import Vector2D
 from models.enums.EnumActor import EnumActor
-from models.enums.EnumBuilding import EnumBuilding
 from models.enums.EnumMapTile import EnumMapTile
 from models.enums.EnumTribe import EnumTribe
 from utils.decorators.decorator_logging import decorator_logging
@@ -26,12 +22,13 @@ from utils.decorators.decorator_timer import decorator_timer
 from utils.decorators.decorator_try_catch import decorator_try_catch
 from utils.iterator.CollectionActorControllers import CollectionActorControllers
 from views.components.ComponentButton import ComponentButton
-from views.components.interfaces import IComponentButton
+from views.decorators.DecoratorComponentButton import DecoratorComponentButton
 from views.resources.ResourcesHoodrick import ResourcesHoodrick
 from views.resources.ResourcesImperius import ResourcesImperius
 from views.resources.interfaces.IResourceFactory import IResourceFactory
 
 MAP_MOVEMENT_SPEED = 30
+
 
 class WindowMain:
     __instance = None
@@ -77,8 +74,6 @@ class WindowMain:
             'New'
         )
         ui_button_new_game.add_listener_click(self.on_click_new_game)
-        # TODO
-        # ui_button_new_game = DecoratorComponentButton(ui_button_new_game)
         self.ui_components.append(ui_button_new_game)
 
         ui_button_save_game = ComponentButton(
@@ -109,11 +104,11 @@ class WindowMain:
         ui_button_undo_turn.add_listener_click(self.on_click_undo_turn)
         self.ui_components.append(ui_button_undo_turn)
 
-        # changed_ui_components: List[IComponentButton] = []
-        # for ui_component in self.ui_components:
-        #     ui_component = DecoratorComponentButton(ui_component)
-        #     changed_ui_components.append(ui_component)
-        # self.ui_components = changed_ui_components.copy()
+        changed_ui_components: List[ComponentButton] = []
+        for ui_component in self.ui_components:
+            ui_component = DecoratorComponentButton(ui_component)
+            changed_ui_components.append(ui_component)
+        self.ui_components = changed_ui_components.copy()
 
         ui_button_actor = ComponentButton(
             Rect(100, 430, 100, 40),
