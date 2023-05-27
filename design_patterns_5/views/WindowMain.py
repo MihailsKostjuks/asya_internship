@@ -155,84 +155,11 @@ class WindowMain:
         self.controllers_actors = []
         self.collection_cont_actors = CollectionActorControllers(self.controllers_actors)
 
-    # def on_click_save_game(self, button):  # serialize
-    #     # TODO
-    #     # state_json = self.game.to_json(indent=4)
-    #     # with open('state.json', 'w') as fp:
-    #     #     fp.write(state_json)
-    #     def write_binary(attribute):
-    #         binary_data = None
-    #         if isinstance(attribute, int):
-    #             binary_data = struct.pack("i", attribute)
-    #         elif isinstance(attribute, float):
-    #             binary_data = struct.pack("f", attribute)
-    #         # elif isinstance(attribute, str):
-    #         #     length = len(attribute)
-    #         #     binary_data = struct.pack(f'{length}s', attribute)
-    #         elif isinstance(attribute, (Vector2D, Actor)):
-    #             for iloop_attr in vars(attribute).values():
-    #                 write_binary(iloop_attr)
-    #         if binary_data is not None:
-    #             fp.write(binary_data)
-    #
-    #     with open("game_data.bin", "ab") as fp:
-    #         for loop_attr in vars(self.game).values():
-    #             write_binary(loop_attr)
-    #
-    # def on_click_load_game(self, button):  # deserialize
-    #     # TODO
-    #     # with open('state.json', 'r') as fp:  # fp = filePointer
-    #     #     state_json = fp.read()
-    #     #     self.game = Game.from_json(state_json)
-    #     # self.setup_game()
-    #     def assign_value(attribute, i):
-    #         unpacked_value = None
-    #         if isinstance(attribute, int):
-    #             unpacked_value = struct.unpack_from('i', binary_data, i * struct.calcsize('i'))
-    #         elif isinstance(attribute, float):
-    #             unpacked_value = struct.unpack_from('f', binary_data, i * struct.calcsize('f'))
-    #         elif isinstance(attribute, (Vector2D, Actor)):
-    #             for iloop_attr in vars(attribute).values():
-    #                 assign_value(attribute, i)
-    #         if unpacked_value is not None:
-    #             setattr(self.game, list(attributes)[i].name, unpacked_value[0])
-#               # NO IDEA HOW TO ACCESS NESTED DATACLASSES AND ITS ATTRIBUTES
-    #             i += 1
-    #         return i
-    #
-    #     with open("game_data.bin", "rb") as fp:
-    #         index = 0
-    #         binary_data = fp.read()
-    #         attributes = vars(self.game).values()
-    #         for loop_attr in attributes:
-    #             index = assign_value(loop_attr, index)
-
     def on_click_save_game(self, button):  # serialize
-
-        def write_binary(attribute):
-            binary_data = struct.pack("f", attribute)
-            fp.write(binary_data)
-
-        with open("game_data.bin", "ab") as fp:
-            actors = self.game.actors
-            if len(actors) > 0:
-                for actor in actors:
-                    positions = vars(actor.position_target).values()
-                    for position in positions:
-                        write_binary(position)
+        ControllerGame.instance().save()
 
     def on_click_load_game(self, button):  # deserialize
-
-        with open("game_data.bin", "rb") as fp:
-            length = len(self.game.actors)
-            binary_data = fp.read()
-            unpacked_value = struct.unpack_from(f'{2 * length}f', binary_data)
-            for index, actor in enumerate(self.game.actors):
-                actor.position.x = unpacked_value[0 + index * 2]
-                actor.position_target.x = actor.position.x
-                actor.position.y = unpacked_value[1 + index * 2]
-                actor.position_target.y = actor.position.y
-        # os.remove('./game_data.bin') cannot remove file that is currently in use (wanted to clear it)
+        ControllerGame.instance().load()
 
     def on_click_end_turn(self, button):
         pass

@@ -1,7 +1,9 @@
 import os.path
 import random
+import struct
 from typing import Tuple, List
 
+from controllers.ControllerActor import ControllerActor
 from controllers.ControllerMap import ControllerMap
 from controllers.commands.CommandActorMove import CommandActorMove
 from controllers.commands.interfaces.ICommand import ICommand
@@ -61,3 +63,33 @@ class ControllerGame:
             command = self.all_commands[length_copy]
             self.current_commands.append(command)
             command.do_turn()
+
+    def save(self):
+
+        with open("game_data.bin", "ab") as fp:
+            self.write_binary(fp, 'i', 1)
+            self.write_binary(fp, 'i', len(self.game.actors))
+            for actor in self.game.actors:
+                ControllerActor.write_binary(fp, actor)
+
+    def write_binary(self, fp, data_type: str, value):
+        bin_data = struct.pack(data_type, value)
+        fp.write(bin_data)
+
+    def load(self):
+
+        with open("game_data.bin", "rb") as fp:
+            index = self.read_binary(fp, 0, 'i', 4)
+            if index == 1:  # double-check
+                self.game.actors = []
+                actor_count = self.read_binary(fp, 1, 'i', 4)
+                if actor_count != 0:
+                    for i in range(actor_count):
+                        ControllerActor.read_binary(fp, self.game, 2 + 4*i, 'i', 4)
+
+    def read_binary(self, fp, offset: int, data_type: str, size: int):
+        fp.seek(offset*size)
+        binData = fp.read(size)
+        data = struct.unpack(data_type, binData)
+        return data[0]
+
