@@ -18,30 +18,34 @@ const ComponentMileage = (props: Props) => {
 
   useEffect( () => {
       setLoading(true);
-      const data = props.dataSet;
-      const mileageGroups: CarsByMileage[] = [];
-      const minMileage = Math.min(...data.map((car) => car.mileage));
-      const maxMileage = Math.max(...data.map((car) => car.mileage));
-      const mileageStep = maxMileage / 10;
-      for (let i = 0; i < 10; i++) {
-        const mileageGroup: CarsByMileage = {
-          lowerRange: mileageStep * i,
-          upperRange: mileageStep * (i + 1),
-          amount: 0,
+      try {
+        const data = props.dataSet;
+        const mileageGroups: CarsByMileage[] = [];
+        const minMileage = Math.min(...data.map((car) => car.mileage));
+        const maxMileage = Math.max(...data.map((car) => car.mileage));
+        const mileageStep = maxMileage / 10;
+        for (let i = 0; i < 10; i++) {
+          const mileageGroup: CarsByMileage = {
+            lowerRange: mileageStep * i,
+            upperRange: mileageStep * (i + 1),
+            amount: 0,
+          }
+          mileageGroups.push(mileageGroup);
         }
-        mileageGroups.push(mileageGroup);
-      }
-      for (let i = 0; i < data.length; i++) {
-        const car = data[i];
-        for (let j = 0; j < mileageGroups.length; j++) {
-          const mileageGroup = mileageGroups[j];
-          if (car.mileage >= mileageGroup.lowerRange && car.mileage <= mileageGroup.upperRange) {
-            mileageGroup.amount++;
-            break; // I used forEach but for loop allows break so its better in this case
+        for (let i = 0; i < data.length; i++) {
+          const car = data[i];
+          for (let j = 0; j < mileageGroups.length; j++) {
+            const mileageGroup = mileageGroups[j];
+            if (car.mileage >= mileageGroup.lowerRange && car.mileage <= mileageGroup.upperRange) {
+              mileageGroup.amount++;
+              break; // I used forEach but for loop allows break so its better in this case
+            }
           }
         }
+        setCarsByMileage(mileageGroups);
+      } catch (e) {
+        console.error(e);
       }
-    setCarsByMileage(mileageGroups);
       setLoading(false);
     },[]
   );

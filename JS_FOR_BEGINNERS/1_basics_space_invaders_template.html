@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Space Invaders Game</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <style type="text/css">
+
+            html, body {
+                background-color: black;
+                width: 100%;
+                overflow: hidden;
+                color: #ffffff;
+                font-size: 16px;
+                line-height: 20px;
+                font-family: monospace;
+            }
+            #scene {
+                margin: 0 auto;
+                border-width: 1px;
+                border-color: lightgray;
+                border-style: solid;
+                width: 220px;
+                height: 300px;
+                position: relative;
+            }
+            .element {
+                position: absolute;
+                transition: left 0.5s;
+            }
+            .alien::after{
+                content: '👾';
+            }
+
+            .player::after{
+                content: '🚀';
+            }
+
+            #header {
+                width: 220px;
+                margin: 50px auto;
+            }
+            #header_score {
+                float: left;
+            }
+            #header_lives {
+                float: right;
+            }
+            .break {
+                clear: both;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <div id="header_score">Score: <span id="span_score">0</span></div>
+            <div id="header_lives">Lives: </div>
+        </div>
+        <div class="break"></div>
+        <div id="scene">
+        </div>
+        <!-- TODO -->
+        <script type="text/javascript">
+            let jScene = $('#scene');
+            for (let i = 0; i < 2; i++) {
+              for (let j = 0; j < 5; j++) {
+                let jAlien = $('<div class="element alien"></div>');
+                jAlien.css('top', 40 + 20*i);
+                jAlien.css('left', 40 + 20*j);
+                jScene.append(jAlien);
+              }
+            }
+            let jPlayer = $('<div class="element player"></div>');
+            jPlayer.css('top', 280);
+            jPlayer.css('left', 80);
+            jScene.append(jPlayer);
+
+            let lastExecutionTime = 0;
+            const transitionTime = 500;
+
+            $(document).bind('keydown', function( event ) {
+                const currentTime = new Date().getTime();
+                if (currentTime - lastExecutionTime > transitionTime)
+                    if (event.key === 'ArrowLeft') {
+                      if (jPlayer.position().left >= 20) {
+                        jPlayer.css('left', jPlayer.position().left - 20);
+                        lastExecutionTime = currentTime;
+                      }
+                    }
+                    else if (event.key === 'ArrowRight') {
+                      if (jPlayer.position().left <= 180) {
+                        jPlayer.css('left', jPlayer.position().left + 20);
+                        lastExecutionTime = currentTime;
+                      }
+                    }
+                console.log(event.key);
+                event.preventDefault();
+            });
+        </script>
+    </body>
+</html>

@@ -11,10 +11,11 @@ class ActionsChat(str, Enum):
 
 
 # this function is not an action: action is returned dict/dataclass
-def action_chat_add_message(message):
+def action_chat_add_message(message, is_from_console=False):
     return {
         'type': ActionsChat.CHAT_ADD_MESSAGE,
-        'payload': message
+        'payload': message,
+        'is_from_console': is_from_console
     }
 
 

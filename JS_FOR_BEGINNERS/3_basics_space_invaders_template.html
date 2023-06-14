@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Space Invaders Game</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <style type="text/css">
+            /* CSS selectors */
+            /* by tag type */
+            html, body {
+                background-color: black;
+                width: 100%;
+                overflow: hidden; /* hide scrollbar */
+                color: #ffffff; /* white text */
+                font-size: 16px;
+                line-height: 20px;
+                font-family: monospace;
+            }
+
+            /* has tag mean id */
+            #scene {
+                margin: 0 auto; /* margin top: 0 and margin sides are auto */
+                border-width: 1px;
+                border-color: lightgray;
+                border-style: solid;
+                width: 220px; /* 11 emojis 20x20 */
+                height: 300px; /* 15 emojis */
+                position: relative;
+            }
+
+            /* . dot means class attribute */
+            .element {
+                position: absolute;
+                transition: top 1s, left 1s; /* automatically animates changing top or left props */
+            }
+
+            .alien::after {
+                content: '👾';
+            }
+
+            .player::after {
+                content: '🚀';
+            }
+
+            .generic::after {
+                content: '⬜';
+            }
+
+            .default_movable::after {
+                content: '🛸';
+            }
+
+            .wall::after {
+                content: '🏛';
+            }
+
+            .life::after {
+                content: '❤️';
+                display: inline-block;
+            }
+
+            #header_lives {
+                float: right;
+                display: flex;
+            }
+
+            #header {
+                width: 220px;
+                margin: 50px auto;
+            }
+            #header_score {
+                float: left; /* divs can be floated to left and right but then you need to clear them */
+            }
+            .break {
+                clear: both;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div id="header">
+<!--            <div id="header_score">Score: <span id="span_score">0</span></div>-->
+<!--            <div id="header_lives" class="life">-->
+        </div>
+        <div class="break"></div>
+        <div id="scene">
+        </div>
+
+        <!-- XML / HTML data format -->
+
+        <script type="text/javascript">
+            const SCENE_WIDTH = 11;
+            const SCENE_HEIGHT = 15;
+
+            class Position2D
+            {
+                #x = 0; // OOP - Encapsulation
+                #y = 0;
+                #is_check_scene = false;
+
+                constructor(val_x, val_y, is_check_scene=true) {
+                    this.#x = val_x;
+                    this.#y = val_y;
+                    this.#is_check_scene = is_check_scene;
+                }
+
+                get x() { // OOP - Encapsulation
+                    return this.#x;
+                }
+
+                set x(val) {
+                    if(!this.#is_check_scene || (
+                        val >= 0 && val < SCENE_WIDTH
+                    )) {
+                        this.#x = val;
+                    }
+                }
+
+                get y() {
+                    return this.#y;
+                }
+
+                set y(val) {
+                    if(!this.#is_check_scene || (
+                        val >= 0 && val < SCENE_HEIGHT
+                    )) {
+                        this.#y = val;
+                    }
+                }
+            }
+
+            class Vector2D extends Position2D { //OOP - Inheritance
+                constructor(val_x, value_y) {
+                    super(val_x, value_y, true);
+                }
+            }
+
+            class EventAlien {
+
+            }
+
+            class EventAlienFire extends EventAlien {
+
+            }
+
+            class EventAlienDirectionChange extends EventAlien {
+                new_dir;  // how to set default value properly?
+            }
+
+            class Element {
+                #position = null;
+                #char = 'generic';
+
+                #element_id = 0;
+                static #element_counter = 0;  // increment
+
+                constructor(position, char = '') {
+                    this.#position = position;
+                    if (char !== '') {
+                        this.#char = char
+                    }
+                    Element.#element_counter++;
+                    this.#element_id = Element.#element_counter;
+                }
+
+                set position(position) {
+                    this.#position = position;
+                }
+
+                get position() {
+                    return this.#position;
+                }
+
+                draw(jScene) {
+                    let jElement = jScene.find(`#el-${this.#element_id}`);
+                    if (jElement.length === 0) {
+                        jElement = $(`<div id="el-${this.#element_id}" class="element ${this.#char}">`);
+                        jScene.append(jElement);
+                    }
+                    jElement.css({
+                        top: parseInt(this.#position.y) * 20,
+                        left: parseInt(this.#position.x) * 20
+                    })
+                }
+
+
+                update(delta_time) {
+
+                }
+
+                check_collision(other_element) {
+
+                }
+
+            }
+
+
+            class Wall extends Element {
+                constructor(position) {
+                    super(position, 'wall');
+                }
+            }
+
+            // question: how to understand looking at UML do I either need to put properties into constructor
+            // or to implement getter&setter or smthing else?
+            class MovableElement extends Element {
+                #direction = 1.0;
+                #speed = 1.0;
+                constructor(position, char = '', direction = 1.0) {
+                    if (char === '') {
+                        char = 'default_movable';
+                    }
+                    super(position, char);
+                    this.#direction = direction;
+                }
+
+                set speed(speed) {
+                    this.#speed = speed;
+                }
+
+                get speed() {
+                    return this.#speed;
+                }
+
+                update(delta_time) {
+
+                }
+
+                left() {
+                    this.position.x --;
+                }
+
+                right() {
+                    this.position.x ++;
+                }
+
+                up() {
+                    this.position.y --;
+                }
+
+                down() {
+                    this.position.y ++;
+                }
+
+                stop() {
+
+                }
+            }
+
+            class Alien extends Element {
+                #speed = 0.5;
+                #listeners_aliens = [];
+
+                constructor(position) {  // Alien constructor
+                    super(position, 'alien');  // data sent to Parent class
+                }
+
+                update(delta_time) {
+                    super.update(delta_time);
+                    // override
+                }
+
+                fire_rocket() {
+
+                }
+
+                check_border() {
+
+                }
+
+                reset_patience() {
+
+                }
+
+                notify(event) {
+
+                }
+
+            }
+
+            class Player extends MovableElement {
+                #speed = 1.5;
+
+                constructor(position) {
+                    super(position, 'player');
+                }
+
+                fire_rocket() {
+
+                }
+
+                check_collision(other_element) {
+                    super.check_collision(other_element);
+                    // override
+                }
+
+                update(delta_time) {
+                    super.update(delta_time);
+                    // override
+                }
+            }
+
+            class Explosion extends Element{
+                #life;  // looks weird
+                constructor(position, life = 0.5) {
+                    super(position, 'explosion');
+                    this.#life = life;
+                }
+
+                update(delta_time) {
+                    // override implementation ...
+                }
+
+            }
+
+            class Rocket extends MovableElement {
+
+            }
+
+            class GameState {
+                static #_instance = null;
+                player = new Player(new Vector2D(5,14));
+                elements = [];
+                lives = 3;
+                score = 0;
+                jHeader = $('#header');
+                jScene = $('#scene');
+                jLives = $(`<div id="header_lives" >`);
+                jScore = $(`<div id="header_score">Score: <span id="span_score">${this.score}</span></div>`);
+
+                static get instance() {
+                    if (!GameState._instance) {
+                        GameState._instance = new GameState();
+                    }
+                    return GameState._instance;
+                }
+
+                new_game() {
+                    this.jHeader.append(this.jScore);
+                    this.jHeader.append(this.jLives);
+                    for (let i = 0; i < this.lives; i++) {
+                        let jLive = $(`<div class="life">`);  // or add id
+                        this.jLives.append(jLive);
+                        console.log('added');
+                    }
+
+                    this.elements.push(this.player);
+                    for(let i = 0; i < 3; i++) {
+                        for(let j = 0; j < 5; j++) {
+                            this.elements.push(new Alien(new Vector2D(3 + j, 4 + i)));
+                        }
+                    }
+
+                    for(let i = 0; i < 4; i++) {
+                        this.elements.push(new Wall(new Vector2D(2 + 2*i, 10)));
+                    }
+                }
+
+                draw() {
+                    for(let element of this.elements) {
+                        element.draw(this.jScene);
+                    }
+                }
+            }
+
+            function main_game_loop () {
+                for(let element of GameState.instance.elements) {
+                    element.draw(GameState.instance.jScene);
+                }
+            }
+
+            GameState.instance.new_game();
+            let mainGameInterval = setInterval(main_game_loop, 100);
+
+            $(document).bind('keydown', ( event ) => {
+                if (event.key === 'ArrowLeft') {
+                    GameState.instance.player.left();
+                }
+                else if (event.key === 'ArrowRight') {
+                    GameState.instance.player.right();
+                }
+                console.log(event.key);
+                event.preventDefault();
+            });
+        </script>
+    </body>
+</html>

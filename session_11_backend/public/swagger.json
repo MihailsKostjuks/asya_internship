@@ -1,0 +1,175 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"RequestCar": {
+				"properties": {
+					"brand": {
+						"type": "string"
+					},
+					"year": {
+						"type": "string"
+					},
+					"price": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"date": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"session_token": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"brand",
+					"year",
+					"price",
+					"description",
+					"date",
+					"session_token"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ResponseExportPDF": {
+				"properties": {
+					"base64String": {
+						"type": "string"
+					},
+					"is_success": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"base64String",
+					"is_success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"RequestExportPDF": {
+				"properties": {
+					"session_token": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"session_token"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "session_4_backend_leftovers",
+		"version": "1.0.0",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/attachments/upload": {
+			"post": {
+				"operationId": "Upload",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"request_json": {
+										"type": "string"
+									},
+									"attachment_file": {
+										"type": "string",
+										"format": "binary"
+									}
+								},
+								"required": [
+									"request_json",
+									"attachment_file"
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cars/submit": {
+			"post": {
+				"operationId": "Upload",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RequestCar"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/cars/exportpdf": {
+			"post": {
+				"operationId": "ExportPDF",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ResponseExportPDF"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RequestExportPDF"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}

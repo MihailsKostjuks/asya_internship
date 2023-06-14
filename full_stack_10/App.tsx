@@ -23,7 +23,8 @@ const App = () => {
     setLoading(true);
     try {
       const csvData: any[] = await new Promise((resolve, reject) => {
-        readRemoteFile('http://share.yellowrobot.xyz/quick/2020-4-22-C9EF4A79-EA4E-488D-9277-0B7B52B6C74E.csv', {
+        const CSV_URL: string = 'http://share.yellowrobot.xyz/quick/2020-4-22-C9EF4A79-EA4E-488D-9277-0B7B52B6C74E.csv';
+        readRemoteFile(CSV_URL, {
           download: true,
           complete: (results) => resolve(results.data),
           error: (error) => reject(error)
@@ -33,20 +34,21 @@ const App = () => {
       let cars: Car[] = [];
 
       for (let i = 1; i < csvData.length - 1; i++) {
+        const rowEach = csvData[i];
         const carEach = {
-          id: parseInt(csvData[i][0]),
-          price: parseInt(csvData[i][1]),
-          brand: csvData[i][2],
-          model: csvData[i][3],
-          year: parseInt(csvData[i][4]),
-          titleStatus: csvData[i][5],
-          mileage: parseFloat(csvData[i][6]),
-          color: csvData[i][7],
-          vin: csvData[i][8],
-          lot: parseInt(csvData[i][9]),
-          state: csvData[i][10],
-          country: csvData[i][11],
-          condition: csvData[i][12]
+          id: parseInt(rowEach[0]),
+          price: parseInt(rowEach[1]),
+          brand: rowEach[2],
+          model: rowEach[3],
+          year: parseInt(rowEach[4]),
+          titleStatus: rowEach[5],
+          mileage: parseFloat(rowEach[6]),
+          color: rowEach[7],
+          vin: rowEach[8],
+          lot: parseInt(rowEach[9]),
+          state: rowEach[10],
+          country: rowEach[11],
+          condition: rowEach[12]
         } as Car;
 
         cars.push(carEach);
@@ -60,17 +62,23 @@ const App = () => {
   }
 
   const sortByBrands = async () => {
-    await readCsvFile();
+    if (!dataSet.length) {
+      await readCsvFile();
+    }
     setShowGraph('amountByBrands');
   }
 
   const sortByPrice = async () => {
-    await setShowGraph('another');
+    if (!dataSet.length) {
+      await readCsvFile();
+    }
     setShowGraph('amountByPrice');
   }
 
   const sortByMileage = async () => {
-    await readCsvFile();
+    if (!dataSet.length) {
+      await readCsvFile();
+    }
     setShowGraph('amountByMileage');
   }
 

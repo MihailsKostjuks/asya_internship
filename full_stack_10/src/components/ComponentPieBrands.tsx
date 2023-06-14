@@ -20,26 +20,30 @@ const ComponentPieBrands = (props: Props) => {
 
   useEffect( () => {
     setLoading(true);
-    setCarsByBrands([]);
-    const cars: CarsByBrand[] = [];
-    const groupedByBrand = _.groupBy(props.dataSet, 'brand')
-    const restBrands: CarsByBrand = {
-      brand: 'the rest',
-      amount: 0
-    }
-    _.keys(groupedByBrand).forEach((brand) => {  // forEach > map cause we dont create new array (return)
-      if (groupedByBrand[brand].length < 30) {  // dummy filter
-        restBrands.amount += groupedByBrand[brand].length;
-      } else {
-        const amountByBrand: CarsByBrand = {
-          brand: brand,
-          amount: groupedByBrand[brand].length
-        }
-        cars.push(amountByBrand);
+    try {
+      setCarsByBrands([]);
+      const cars: CarsByBrand[] = [];
+      const groupedByBrand = _.groupBy(props.dataSet, 'brand')
+      const restBrands: CarsByBrand = {
+        brand: 'the rest',
+        amount: 0
       }
-    })
-    cars.push(restBrands);
-    setCarsByBrands(cars);
+      _.keys(groupedByBrand).forEach((brand) => {  // forEach > map cause we dont create new array (return)
+        if (groupedByBrand[brand].length < 30) {  // dummy filter
+          restBrands.amount += groupedByBrand[brand].length;
+        } else {
+          const amountByBrand: CarsByBrand = {
+            brand: brand,
+            amount: groupedByBrand[brand].length
+          }
+          cars.push(amountByBrand);
+        }
+      })
+      cars.push(restBrands);
+      setCarsByBrands(cars);
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
     },[]
   );

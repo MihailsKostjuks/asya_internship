@@ -17,30 +17,32 @@ const ComponentPriceRange = (props: Props) => {
 
   useEffect( () => {
     setLoading(true);
-    const data = props.dataSet;
-    const priceGroups: CarsByPriceRange[] = [];
-    const minPrice = Math.min(...data.map((car) => car.price));
-    const maxPrice = Math.max(...data.map((car) => car.price));
-    const priceStep = maxPrice / 10;
-    for (let i = 0; i < 10; i++) {
-      const priceGroup: CarsByPriceRange = {
-        lowerRange: priceStep * i,
-        upperRange: priceStep * (i + 1),
-        amount: 0,
+    try {
+      const data = props.dataSet;
+      const priceGroups: CarsByPriceRange[] = [];
+      const minPrice = Math.min(...data.map((car) => car.price));
+      const maxPrice = Math.max(...data.map((car) => car.price));
+      const priceStep = maxPrice / 10;
+      for (let i = 0; i < 10; i++) {
+        const priceGroup: CarsByPriceRange = {
+          lowerRange: priceStep * i,
+          upperRange: priceStep * (i + 1),
+          amount: 0,
+        }
+        priceGroups.push(priceGroup);
       }
-      priceGroups.push(priceGroup);
-    }
-    for (let i = 0; i < data.length; i++) {
-      const car = data[i];
-      for (let j = 0; j < priceGroups.length; j++) {
-        const priceGroup = priceGroups[j];
-        if (car.price >= priceGroup.lowerRange && car.price <= priceGroup.upperRange) {
-          priceGroup.amount++;
-          break; // I used forEach but for loop allows break so its better in this case
+      for (let row of data) {
+        for (let priceGroup of priceGroups) {
+          if (row.price >= priceGroup.lowerRange && row.price <= priceGroup.upperRange) {
+            priceGroup.amount++;
+            break; // I used forEach but for loop allows break so its better in this case
+          }
         }
       }
+      setCarsByPriceRange(priceGroups);
+    } catch (e) {
+      console.error(e);
     }
-    setCarsByPriceRange(priceGroups);
     setLoading(false);
     },[]
   );

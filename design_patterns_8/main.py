@@ -19,11 +19,16 @@ from stores.store_main import store_main
 # my_thread.join() terminates the main thread (program runtime) until my_thread finished its execution
 is_running = True
 
+
 def console_main():
     global is_running
     while is_running:
         chat_message = input('chat message: ')
-        # TODO
+        action = actions_chat.action_chat_add_message(
+            message=chat_message,
+            is_from_console=True
+        )
+        store_main.dispatch(action)
 
 
 console_thread = threading.Thread(target=console_main)
