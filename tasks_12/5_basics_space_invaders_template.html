@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Space Invaders Game</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/nicolaspanel/numjs@0.15.1/dist/numjs.min.js"></script>
+
+        <style type="text/css">
+            /* CSS selectors */
+            /* by tag type */
+            html, body {
+                background-color: black;
+                width: 100%;
+                overflow: hidden; /* hide scrollbar */
+                color: #ffffff; /* white text */
+                font-size: 16px;
+                line-height: 20px;
+                font-family: monospace;
+            }
+
+            /* has tag mean id */
+            #scene {
+                margin: 0 auto; /* margin top: 0 and margin sides are auto */
+                border-width: 1px;
+                border-color: lightgray;
+                border-style: solid;
+                width: 220px; /* 11 emojis 20x20 */
+                height: 300px; /* 15 emojis */
+                position: relative;
+            }
+
+            /* . dot means class attribute */
+            .element {
+                position: absolute;
+                /* transition: top 0.2s, left 0.2s; /* automatically animates changing top or left props */
+            }
+
+            .alien::after {
+                content: '👾';
+            }
+
+            .generic::after {
+                content: '⬜';
+            }
+
+            .wall::after {
+                content: '🏛';
+            }
+
+            .player::after {
+                content: '📤';
+            }
+
+            .rocket-up::after {
+                content: '🔺';
+            }
+
+            .rocket-down::after {
+                content: '🔻';
+            }
+
+            .explosion::after {
+                content: '💥';
+            }
+
+            #header {
+                width: 220px;
+                margin: 50px auto;
+            }
+            #header_score {
+                float: left; /* divs can be floated to left and right but then you need to clear them */
+            }
+            #header_lives {
+                float: right;
+            }
+            .break {
+                clear: both;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div id="header">
+            <div id="header_score">Score: <span id="span_score">0</span></div>
+            <div id="header_lives">📤📤📤</div>
+        </div>
+        <div class="break"></div>
+        <div id="scene">
+        </div>
+
+        <!-- XML / HTML data format -->
+
+        <script type="text/javascript">
+            const SCENE_WIDTH = 10;
+            const SCENE_HEIGHT = 15;
+
+
+            class Element {
+                #position = null;
+                #char = 'generic';
+
+                #element_id = 0;
+                static #element_counter = 0;
+
+                constructor(position, char = false) {
+                    this.#position = position;
+                    if(char) {
+                        this.#char = char;
+                    }
+
+                    Element.#element_counter ++;
+                    this.#element_id = Element.#element_counter;
+                }
+
+                set position(pos) {
+                    if (pos.get(0) < 0) {
+                        pos.set(0, 0);
+                    }
+                    else if (pos.get(0) > SCENE_WIDTH) {
+                        pos.set(0, SCENE_WIDTH);
+                    }
+
+                    if (pos.get(1) < 0) {
+                        pos.set(1, 0);
+                    }
+                    else if (pos.get(1) > SCENE_HEIGHT-1) {
+                        pos.set(1, SCENE_HEIGHT-1);
+                    }
+
+                    this.#position = pos;
+                }
+                get position() {
+                    return this.#position;
+                }
+
+                draw() {
+                    let jScene = GameState.instance.jScene;
+                    let jElement = jScene.find(`#el-${this.#element_id}`); // <div id="el-1">
+                    if(jElement.length === 0) {
+                        jElement = $(`<div id="el-${this.#element_id}" class="element ${this.#char}" >`);
+                        jScene.append(jElement);
+                    }
+                    jElement.css({
+                        top: Math.floor(this.#position.get(1) * 20),
+                        left: Math.floor(this.#position.get(0) * 20),
+                    });
+                }
+
+                remove() {
+                    let jElement = GameState.instance.jScene.find(`#el-${this.#element_id}`);
+                    jElement.remove();
+                    GameState.instance.elements = _.pull(GameState.instance.elements, this);
+                }
+
+                update(delta_time) {
+
+                }
+
+                check_collision(other) {
+
+                    let is_collsion = false;
+                    //TODO
+
+                    return is_collsion;
+                }
+            }
+
+            class Wall extends Element {
+                constructor(position) {
+                    super(position, 'wall');
+                }
+            }
+
+            class MovableElement extends Element {
+                constructor(position, char=false) {
+                    super(position, char);
+
+                    this._direction = nj.array([0, 0]);
+                    this._speed = 1.0;
+                }
+
+                update(delta_time) {
+                    super.update(delta_time);
+
+                    //TODO
+                }
+
+                stop() {
+                    this._direction = nj.array([0, 0]);
+                }
+
+                left() {
+                    this._direction = nj.array([-1, 0]);
+                }
+
+                right() {
+                    this._direction = nj.array([1, 0]);
+                }
+
+                up() {
+                    this._direction = nj.array([0, -1]);
+                }
+
+                down() {
+                    this._direction = nj.array([0, 1]);
+                }
+            }
+
+            class Player extends MovableElement {
+                constructor(position) {
+                    super(position, 'player');
+                    this._speed = 1.5;
+                }
+
+                fire_rocket() {
+                    console.log('fire_rocket');
+                    let rocket = new Rocket(nj.round(this.position))
+                    rocket.up();
+                    elements.push(rocket);
+                }
+
+                update(delta_time) {
+                    super.update(delta_time);
+                }
+            }
+
+            class Alien extends MovableElement {
+                constructor(position) {
+                    super(position, 'alien');
+                }
+            }
+
+            class Rocket extends MovableElement {
+                constructor(position, is_up=true) {
+                    let class_name = 'rocket-up';
+                    if(!is_up) {
+                        class_name = 'rocket-down';
+                    }
+                    super(position, class_name);
+
+                    this._speed = 2.0;
+                }
+
+                update(delta_time) {
+                    super.update(delta_time);
+                    if(this.position.get(1) <= 0) {
+                        this.remove();
+                    }
+                }
+            }
+
+            class Explosion extends Element {
+                constructor(position) {
+                    super(position, 'explosion');
+                }
+            }
+
+            class GameState {
+
+                constructor() {
+                    //TODO
+                    this.jScene = $('#scene'); // CSS selector
+                    this.elements = [];
+                    this.player = null;
+                    this.is_game_running = true;
+                }
+
+                static get instance() {
+                    let result = new GameState();
+                    return result;
+                }
+            }
+
+
+            GameState.instance.player = new Player(nj.array([parseInt(SCENE_WIDTH/2), SCENE_HEIGHT-1]));
+            let elements = [GameState.instance.player];
+
+            for(let i = 0; i < 4; i++) {
+                let wall_pos = nj.array([2 + i * 2, SCENE_HEIGHT-4]);
+                let wall = new Wall(wall_pos);
+                elements.push(wall);
+            }
+
+            for(let i = 0; i < 6; i++) {
+                for(let j = 0; j < 4; j++) {
+                    let wall_pos = nj.array([2 + i, 3 + j]);
+                    let wall = new Alien(wall_pos);
+                    elements.push(wall);
+                }
+            }
+            GameState.instance.elements = elements;
+
+            function get_time_sec() {
+                let result = Date.now() / 1000.0;
+                return result;
+            }
+
+            function main_game_loop() {
+                let time_now = get_time_sec();
+                let elements = GameState.instance.elements;
+
+                let time_delta = time_now - time_before;
+                for(let element of elements) {
+                    element.update(time_delta)
+                }
+
+                for(let element of elements) {
+                    element.draw();
+                }
+
+                //TODO
+
+                time_before = time_now;
+                if(GameState.instance.is_game_running) {
+                    setTimeout(main_game_loop, 100);
+                }
+            }
+            let time_before = get_time_sec();
+            setTimeout(main_game_loop, 100);
+
+            $(document).bind('keydown', ( event ) => {
+                let player = GameState.instance.player;
+                if (event.key === 'ArrowLeft') {
+                    player.left();
+                }
+                else if (event.key === 'ArrowRight') {
+                    player.right();
+                }
+                else if (event.key === ' ') {
+                    player.fire_rocket();
+                }
+                else if(event.key === 'Escape') {
+                    GameState.instance.is_game_running = false;
+                    alert('game ended');
+                }
+                event.preventDefault();
+            });
+        </script>
+    </body>
+</html>

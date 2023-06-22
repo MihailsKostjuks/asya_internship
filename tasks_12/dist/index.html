@@ -2,12 +2,29 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Title</title>
-        <link href="styles/main.css?=v2" rel="stylesheet" />
+        <title>Space Invaders</title>
+        <link href="styles/main.css" rel="stylesheet" />
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     </head>
     <body>
-        <span class="something">Something</span>
-        <script type="text/javascript" src="main.js"></script>
+        <div id="header"></div>
+        <div class="break"></div>
+        <div id="scene">
+            <div id="overlay_start">
+                <button id="myButton">New Game</button>
+            </div>
+            <div id="overlay_end">
+                <form action="http://server" method="post">
+                    <span>Your score: <span class="span_score"></span></span><br/>
+                    <span>Your name: </span><br/>
+                    <input type="text" name="player_name"/><br/>
+                    <input type="submit" value="Submit"/>
+                </form>
+            </div>
+        </div>
+
+        <script type="module" src="main.js"></script>
     </body>
 </html>

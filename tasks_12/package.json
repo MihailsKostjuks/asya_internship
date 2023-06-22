@@ -1,18 +1,23 @@
 {
   "name": "tasks_12",
+  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "main.ts",
   "scripts": {
-    "tsc": "tsc"
+    "tsc": "tsc --watch",
+    "scss": "sass --watch src/styles/main.scss:dist/styles/main.css"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jquery": "^3.7.0"
+    "jquery": "^3.7.0",
+    "js-cookie": "^3.0.5",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.16",
+    "@types/js-cookie": "^3.0.3",
     "typescript": "^5.1.3"
   }
 }
